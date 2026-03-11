@@ -117,6 +117,10 @@ body {
   color: #fff;
 }
 
+.main article {
+  font-family: Charter, Georgia, serif;
+}
+
 .main article p {
   margin-bottom: 1rem;
 }
