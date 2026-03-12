@@ -61,7 +61,14 @@ def collect_articles():
 
 
 def build_sidebar(articles, root):
-    lines = ['<aside class="sidebar">', "  <nav>", "    <h2>Posts</h2>", "    <ul>"]
+    sidebar_tpl = read(os.path.join(TEMPLATES_DIR, "sidebar.html"))
+    lines = [
+        '<aside class="sidebar">',
+        sidebar_tpl,
+        "  <nav>",
+        "    <h2>Posts</h2>",
+        "    <ul>",
+    ]
     for a in articles:
         lines.append(
             f'      <li><a href="{root}articles/{a["slug"]}.html">{a["title"]}</a>'
