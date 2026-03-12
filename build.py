@@ -4,6 +4,7 @@
 import os
 import re
 import shutil
+from datetime import date as date_type
 
 import mistune
 
@@ -29,6 +30,11 @@ def extract_meta(html, key):
     return m.group(1) if m else ""
 
 
+def strip_meta(text):
+    """Remove <!-- key: value --> comment lines from content."""
+    return re.sub(r"<!--\s*\w+:\s*.+?\s*-->\n?", "", text)
+
+
 def collect_articles():
     articles = []
     for fname in os.listdir(ARTICLES_DIR):
@@ -36,11 +42,11 @@ def collect_articles():
         if fname.endswith(".html"):
             raw = read(path)
             slug = fname.replace(".html", "")
-            content = raw
+            content = strip_meta(raw)
         elif fname.endswith(".md"):
             raw = read(path)
             slug = fname.replace(".md", "")
-            content = mistune.html(raw)
+            content = mistune.html(strip_meta(raw))
         else:
             continue
         articles.append({
@@ -74,6 +80,16 @@ def prefix_images(html, root):
     )
 
 
+def article_header(title, date):
+    """Generate the article title and date HTML."""
+    try:
+        d = date_type.fromisoformat(date)
+        pretty = d.strftime("%B %-d, %Y")
+    except ValueError:
+        pretty = date
+    return f'<h1>{title}</h1>\n<p class="date">{pretty}</p>\n'
+
+
 def build_page(base, header, sidebar, content, title):
     page = base
     page = page.replace("{{header}}", header)
@@ -99,7 +115,7 @@ def main():
         root = "../"
         sidebar = build_sidebar(articles, root)
         header = header_tpl.replace("{{root}}", root)
-        content = prefix_images(a["content"], root)
+        content = article_header(a["title"], a["date"]) + prefix_images(a["content"], root)
         page = build_page(base.replace("{{root}}", root), header, sidebar, content, a["title"])
         write(os.path.join(DIST, "articles", a["filename"]), page)
 
@@ -109,7 +125,7 @@ def main():
         root = "./"
         sidebar = build_sidebar(articles, root)
         header = header_tpl.replace("{{root}}", root)
-        content = prefix_images(latest["content"], root)
+        content = article_header(latest["title"], latest["date"]) + prefix_images(latest["content"], root)
         page = build_page(base.replace("{{root}}", root), header, sidebar, content, latest["title"])
         write(os.path.join(DIST, "index.html"), page)
 
