@@ -56,6 +56,15 @@ def build_sidebar(articles, root):
     return "\n".join(lines)
 
 
+def prefix_images(html, root):
+    """Rewrite bare <img src="file"> to <img src="{root}images/file">."""
+    return re.sub(
+        r'(<img\s[^>]*src=")(?!https?://|/|\.\./)([^"]+)',
+        rf'\1{root}images/\2',
+        html,
+    )
+
+
 def build_page(base, header, sidebar, content, title):
     page = base
     page = page.replace("{{header}}", header)
@@ -81,7 +90,8 @@ def main():
         root = "../"
         sidebar = build_sidebar(articles, root)
         header = header_tpl.replace("{{root}}", root)
-        page = build_page(base.replace("{{root}}", root), header, sidebar, a["content"], a["title"])
+        content = prefix_images(a["content"], root)
+        page = build_page(base.replace("{{root}}", root), header, sidebar, content, a["title"])
         write(os.path.join(DIST, "articles", a["filename"]), page)
 
     # Build index (latest article)
@@ -90,11 +100,17 @@ def main():
         root = "./"
         sidebar = build_sidebar(articles, root)
         header = header_tpl.replace("{{root}}", root)
-        page = build_page(base.replace("{{root}}", root), header, sidebar, latest["content"], latest["title"])
+        content = prefix_images(latest["content"], root)
+        page = build_page(base.replace("{{root}}", root), header, sidebar, content, latest["title"])
         write(os.path.join(DIST, "index.html"), page)
 
     # Copy styles
     shutil.copy2(os.path.join(ROOT, "styles.css"), os.path.join(DIST, "styles.css"))
+
+    # Copy images
+    images_src = os.path.join(ROOT, "images")
+    if os.path.isdir(images_src):
+        shutil.copytree(images_src, os.path.join(DIST, "images"))
 
     print(f"Built {len(articles)} article(s) -> dist/")
 
