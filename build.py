@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Build script for the static blog. No pip dependencies required."""
+"""Build script for the static blog."""
 
 import os
 import re
 import shutil
+
+import mistune
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
@@ -30,15 +32,22 @@ def extract_meta(html, key):
 def collect_articles():
     articles = []
     for fname in os.listdir(ARTICLES_DIR):
-        if not fname.endswith(".html"):
+        path = os.path.join(ARTICLES_DIR, fname)
+        if fname.endswith(".html"):
+            raw = read(path)
+            slug = fname.replace(".html", "")
+            content = raw
+        elif fname.endswith(".md"):
+            raw = read(path)
+            slug = fname.replace(".md", "")
+            content = mistune.html(raw)
+        else:
             continue
-        content = read(os.path.join(ARTICLES_DIR, fname))
-        slug = fname.replace(".html", "")
         articles.append({
             "slug": slug,
-            "filename": fname,
-            "title": extract_meta(content, "title") or slug,
-            "date": extract_meta(content, "date") or "9999-99-99",
+            "filename": slug + ".html",
+            "title": extract_meta(raw, "title") or slug,
+            "date": extract_meta(raw, "date") or "9999-99-99",
             "content": content,
         })
     articles.sort(key=lambda a: a["date"], reverse=True)
