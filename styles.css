@@ -5,12 +5,12 @@
 }
 
 :root {
-  --bg: #1a1a2e;
-  --surface: #16213e;
+  --bg: #080820;
+  --surface: #10113e;
   --text: #e0e0e0;
   --text-muted: #a0a0b0;
   --accent: #4fc3f7;
-  --border: #2a2a4a;
+  --code-bg: #1a1b4a;
 }
 
 html {
@@ -37,7 +37,6 @@ body {
   grid-area: header;
   background: var(--surface);
   padding: 1rem 2rem;
-  border-bottom: 1px solid var(--border);
 }
 
 .site-header h1 {
@@ -55,7 +54,6 @@ body {
   grid-area: sidebar;
   background: var(--surface);
   padding: 1.5rem 1rem;
-  border-right: 1px solid var(--border);
   overflow-y: auto;
 }
 
@@ -130,14 +128,14 @@ body {
 }
 
 .main article code {
-  background: var(--surface);
+  background: var(--code-bg);
   padding: 0.15em 0.4em;
   border-radius: 3px;
   font-size: 0.9em;
 }
 
 .main article pre {
-  background: var(--surface);
+  background: var(--code-bg);
   padding: 1rem;
   border-radius: 6px;
   overflow-x: auto;
@@ -166,7 +164,6 @@ body {
   padding: 1rem;
   font-size: 0.8rem;
   color: var(--text-muted);
-  border-top: 1px solid var(--border);
 }
 
 /* Responsive */
@@ -181,8 +178,6 @@ body {
   }
 
   .sidebar {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
     padding: 1rem;
   }
 
