@@ -10,7 +10,8 @@ import mistune
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
-ARTICLES_DIR = os.path.join(ROOT, "articles")
+ARTICLES_HTML = os.path.join(ROOT, "articles")
+ARTICLES_MD = os.path.join(ROOT, "www-vault")
 TEMPLATES_DIR = os.path.join(ROOT, "templates")
 
 
@@ -35,20 +36,32 @@ def strip_meta(text):
     return re.sub(r"<!--\s*\w+:\s*.+?\s*-->\n?", "", text)
 
 
+def list_files(directory, ext):
+    """Return the names of files in directory ending with ext."""
+    if not os.path.isdir(directory):
+        return []
+    return sorted(
+        f for f in os.listdir(directory)
+        if f.endswith(ext) and os.path.isfile(os.path.join(directory, f))
+    )
+
+
+def slugify(name):
+    """Turn a file name into a URL-friendly slug."""
+    return name.lower().replace(" ", "_")
+
+
 def collect_articles():
     articles = []
-    for fname in os.listdir(ARTICLES_DIR):
-        path = os.path.join(ARTICLES_DIR, fname)
-        if fname.endswith(".html"):
-            raw = read(path)
-            slug = fname.replace(".html", "")
-            content = strip_meta(raw)
-        elif fname.endswith(".md"):
-            raw = read(path)
-            slug = fname.replace(".md", "")
-            content = mistune.html(strip_meta(raw))
-        else:
-            continue
+    sources = (
+        [(ARTICLES_HTML, f, ".html") for f in list_files(ARTICLES_HTML, ".html")]
+        + [(ARTICLES_MD, f, ".md") for f in list_files(ARTICLES_MD, ".md")]
+    )
+    for directory, fname, ext in sources:
+        path = os.path.join(directory, fname)
+        raw = read(path)
+        slug = slugify(fname[: -len(ext)])
+        content = strip_meta(raw) if ext == ".html" else mistune.html(strip_meta(raw))
         articles.append({
             "slug": slug,
             "filename": slug + ".html",
