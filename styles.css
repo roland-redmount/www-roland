@@ -147,6 +147,15 @@ body {
   background: none;
 }
 
+/* A runnable atom snippet, matched to the code blocks around it. */
+.main article atom-snippet {
+  --atom-surface: var(--code-bg);
+  --atom-muted: var(--text-muted);
+  --atom-code-size: 0.9em;
+  --atom-radius: 6px;
+  margin-bottom: 1rem;
+}
+
 .main article ul,
 .main article ol {
   margin-bottom: 1rem;
